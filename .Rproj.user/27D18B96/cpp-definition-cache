@@ -1,0 +1,17 @@
+[
+    {
+        "file": "C:/Users/yangc/Desktop/1/xyc/Statcomp20096/src/rwM.cpp",
+        "file_last_write": 1607739229.0,
+        "definitions": [
+            {
+                "usr": "c:@F@rwMetropolis#d#d#I#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "rwMetropolis(double, double, int)",
+                "file": "C:/Users/yangc/Desktop/1/xyc/Statcomp20096/src/rwM.cpp",
+                "line": 19,
+                "column": 15
+            }
+        ]
+    }
+]

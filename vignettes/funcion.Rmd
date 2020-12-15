@@ -1,0 +1,119 @@
+---
+title: "homework"
+author: "20096"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{homework}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# plotknnde
+
+Write a kde function via knn.dist in R package FNN,and perform the k-nearest
+neighbor density estimation .
+
+```{r}
+plotknnde=function(x,k,xrange,yrange,phi,theta,col,border){
+  p=ncol(x)
+  n=nrow(x)
+  est_pt=expand.grid(xrange,yrange)
+  # generate z dimonsion from x,y
+  distance=knnx.dist(x,est_pt,k)
+  # get k-nearest neighbor 
+  est_de=matrix(k/(2*n*distance[,k]),nrow = length(xrange))
+  # get knn estimate
+  return(persp(xrange,yrange,est_de,phi,theta,col,border))
+  # get picture
+}
+```
+
+# MCtestar
+
+$$y_{i,t}=\phi y_{i,t-1}+\epsilon_{i,t}$$
+
+$$E[\epsilon]=0$$
+
+reduced form:
+
+$$y^*=\phi y^*_{-1}+\epsilon^*$$
+
+where
+
+$$y^*=(y_2-\bar y,y_3-\bar y...y_T-\bar y)',\epsilon^*=\epsilon-\bar\epsilon$$
+
+$$\hat\phi=(y^{*'}_{-1}*y^*_{-1})^{-1}y^{*'}_{-1}y^*$$
+
+step 1: simulation
+
+$$\hat\phi_0=\frac{1}{H}\sum_{h=1}^{H}\hat\phi_h$$
+
+step 2:
+
+generate $\hat\phi_m\quad m=1...M$similarly.
+
+$$DWH_0=| \hat\phi_0-\hat\phi_H  |$$
+
+$$DWH_m=| \hat\phi_0-\hat\phi_m  |$$
+
+$$p=\frac{1+\{ DWH_0<DWH_m \}}{1+M}$$
+
+```{r}
+# generate AR(1)
+ar=function(phi,t,y0){
+  m=length(y0)
+  A=matrix(0,m,t)
+  for (k in 1:m) {
+    y=rep(0,t)
+    y[1]=(1-phi)*y0[k]+rnorm(1,0,1)
+    for (tt in 2:t){
+      y[tt]=(1-phi)*y[tt-1]+rnorm(1,0,1)
+    }
+    A[k,]=y  
+  }
+  A=cbind(y0,A)
+  return(A)
+}
+
+# generate phi
+pphi=function(data){
+  ymean=apply(data[,-c(1,2)],1,mean)
+  yh=as.vector(data[,-c(1,2)]-ymean)
+  t=dim(data)[2]
+  yh.lag=as.vector(data[,-c(1,t)]-ymean)
+  phi=1/(yh.lag%*%yh.lag)*(yh.lag%*%yh)
+  return(as.numeric( phi))
+}
+# generate DWH and get p-value
+DWH=function(data,phi0,M,H){
+  y0=data[,1]
+  m=dim(data)[1]
+  t=dim(data)[2]-1
+  pre.phi=pphi(data)
+  cre.phi=rep(0,M+1)
+  for (m in 1:(1+M)){
+    inst.phi=rep(0,H)
+    for (h in 1:H) {
+      data0=ar(phi0,t,y0)
+      pphi(data0)
+      inst.phi[h]=pphi(data0)
+    }
+    cre.phi[m]=mean(inst.phi)
+  }
+  Q0=abs(pre.phi-cre.phi[1])
+  Qm=abs(cre.phi[2:(M+1)]-cre.phi[1])
+  p=mean(Qm>Q0)
+  return(p)
+}
+
+# generate mean p-value 
+MCtestar=function(data,phi,M,H,N){
+  pa=rep(0,N)
+  for (i in 1:N) {
+    pa[i]=DWH(data,phi,M,H)
+  }
+  return(mean(pa>0.05))
+}
+```
+

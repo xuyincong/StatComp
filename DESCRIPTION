@@ -1,0 +1,17 @@
+Package: Statcomp20096
+Type: Package
+Title: Example functions for 'Statistical Computing' course and homework
+Version: 1.0
+Date: 2020-12-15
+Author: 20096
+Maintainer: Yincong xu <2625464065@qq.com>
+Description: Several R and Rcpp function are included in this package for illustration. 
+License: GPL (>= 2)
+Imports: Rcpp (>= 0.12.16), microbenchmark, DAAG,MASS,boot,bootstrap,FNN,graphics
+LinkingTo: Rcpp
+RoxygenNote: 7.1.1
+Encoding: UTF-8
+Suggests:
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
